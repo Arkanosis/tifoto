@@ -1,0 +1,32 @@
+#! /bin/sh
+
+# tifoto
+# (C) 2017 Jérémie Roquet <jroquet@arkanosis.net>
+# Released under the MIT license
+# https://github.com/Arkanosis/tifoto/
+
+if [ $# -lt 1 ]; then
+  echo 'Usage: tifoto <all photos to resize>' >&2
+  exit 1
+fi
+
+mkdir -p '/tmp/tifoto'
+
+# TODO ask for the output resolution and quality (?) from a limited list (three choices max)
+# TODO compute the list of files to convert, then display a progress bar
+# (use “dialog --gauge” in console and “kdialog --progressbar” in graphical)
+for arg in "$@"; do
+    find "$arg" -type f -exec sh -c 'dest=$(basename "{}"); while test -f "/tmp/tifoto/$dest"; do dest="_$dest"; done; convert -resize 3840x3840 -quality 70% "{}" "/tmp/tifoto/$dest" && touch -r "{}" "/tmp/tifoto/$dest"' \;
+done
+
+if [ "x$LANG" = "xfr_FR.UTF-8" ]; then
+    msg='Les photos redimensionnées ont été écrites dans "/tmp/tifoto" et seront supprimées lors du prochain redémarrage.'
+else
+    msg='Resized photos were written to "/tmp/tifoto" and will be deleted at reboot.'
+fi
+
+if [ "x$DISPLAY" = "x" ]; then
+    echo "$msg"
+else
+    kdialog --msgbox "$msg"
+fi
