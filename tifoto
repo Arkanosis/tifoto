@@ -1,32 +1,111 @@
-#! /bin/sh
+#! /usr/bin/env python3
 
-# tifoto
+# tifoto v1.0.0
 # (C) 2017 Jérémie Roquet <jroquet@arkanosis.net>
 # Released under the MIT license
 # https://github.com/Arkanosis/tifoto/
 
-if [ $# -lt 1 ]; then
-  echo 'Usage: tifoto <all photos to resize>' >&2
-  exit 1
-fi
+__version__ = '1.0.0'
 
-mkdir -p '/tmp/tifoto'
+import gettext
+import os
+import os.path
+import re
+import subprocess
+import sys
+import threading
 
-# TODO ask for the output resolution and quality (?) from a limited list (three choices max)
-# TODO compute the list of files to convert, then display a progress bar
-# (use “dialog --gauge” in console and “kdialog --progressbar” in graphical)
-for arg in "$@"; do
-    find "$arg" -type f -exec sh -c 'dest=$(basename "{}"); while test -f "/tmp/tifoto/$dest"; do dest="_$dest"; done; convert -resize 3840x3840 -quality 70% "{}" "/tmp/tifoto/$dest" && touch -r "{}" "/tmp/tifoto/$dest"' \;
-done
+tifoto_dir = '/tmp/tifoto'
+jpeg_file = re.compile(r'\.jpe?g$', re.IGNORECASE)
 
-if [ "x$LANG" = "xfr_FR.UTF-8" ]; then
-    msg='Les photos redimensionnées ont été écrites dans "/tmp/tifoto" et seront supprimées lors du prochain redémarrage.'
-else
-    msg='Resized photos were written to "/tmp/tifoto" and will be deleted at reboot.'
-fi
+class Progress:
 
-if [ "x$DISPLAY" = "x" ]; then
-    echo "$msg"
-else
-    kdialog --msgbox "$msg"
-fi
+    def __init__(self, steps):
+        self.__lock = threading.Lock()
+        self.__step = 0
+        if os.environ.get('DISPLAY'):
+            self.__dialog = subprocess.run(['kdialog', '--progressbar', _('Resizing…'), str(steps)], stdout=subprocess.PIPE).stdout.rstrip().split()
+            self.__update('showCancelButton', 'true')
+        else:
+            print(_('Resizing…'))
+
+    def __update(self, *args):
+        result = subprocess.run(['qdbus'] + self.__dialog + list(args), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        return result.returncode == 0 and result.stdout.rstrip()
+
+    def begin(self, step):
+        if os.environ.get('DISPLAY'):
+            self.__update('setLabelText', _('Resizing "{}"…').format(step))
+        else:
+            print('\t{}'.format(step))
+
+    def end(self):
+        with self.__lock:
+            self.__step += 1
+        if os.environ.get('DISPLAY'):
+            self.__update('Set', '', 'value', str(self.__step))
+
+    def stopped(self):
+        if os.environ.get('DISPLAY'):
+            result = self.__update('wasCancelled')
+            return not result or result == b'true'
+        return False
+
+    def close(self):
+        if os.environ.get('DISPLAY'):
+            self.__update('close')
+
+def show_message(message):
+    if os.environ.get('DISPLAY'):
+        subprocess.run(['kdialog', '--msgbox', message])
+    else:
+        print(message)
+
+def resize_photos(args):
+    photos = []
+    for arg in args:
+        for dirpath, __, filenames in os.walk(arg, followlinks=True):
+            for filename in filenames:
+                if jpeg_file.search(filename):
+                    photos.append((dirpath, filename))
+
+    progress = Progress(len(photos))
+    os.makedirs(tifoto_dir, exist_ok=True)
+
+    lock = threading.Lock()
+
+    def worker():
+        while not progress.stopped():
+            with lock:
+                if not photos:
+                    break
+                directory, photo = photos.pop(0)
+            progress.begin(photo)
+            dest = photo
+            while os.path.exists(dest):
+                dest = '_' + dest
+            subprocess.run(['convert', '-resize', '3840x3840', '-quality', '70%', os.path.join(directory, photo), os.path.join(tifoto_dir, dest)])
+            subprocess.run(['touch', '-r', os.path.join(directory, photo), os.path.join(tifoto_dir, dest)])
+            progress.end()
+
+    threads = []
+    for thread in os.sched_getaffinity(0):
+        worker_thread = threading.Thread(target=worker)
+        threads.append(worker_thread)
+        worker_thread.start()
+
+    for thread in threads:
+        thread.join()
+
+    progress.close()
+    show_message(_('Resized photos were written to "{}" and will be deleted at reboot.').format(tifoto_dir))
+
+if __name__ == '__main__':
+
+    gettext.install('tifoto', os.path.join(os.path.dirname(__file__), 'locale'))
+
+    if len(sys.argv) < 2:
+        print(_('Usage: {} <all photos to resize>').format(sys.argv[0].split(os.sep)[-1]), file=sys.stderr)
+        sys.exit(1)
+
+    resize_photos(sys.argv[1:])

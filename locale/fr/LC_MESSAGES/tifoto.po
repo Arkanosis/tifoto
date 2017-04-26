@@ -1,0 +1,27 @@
+# tifoto v1.0.0
+# (C) 2017 Jérémie Roquet <jroquet@arkanosis.net>
+# Released under the MIT license
+# https://github.com/Arkanosis/tifoto/
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0.0\n"
+"POT-Creation-Date: 2017-04-20 22:14+0200\n"
+"PO-Revision-Date: 2017-04-20 22:14+0200\n"
+"Last-Translator: Jérémie Roquet <jroquet@arkanosis.net>\n"
+"Language-Team: Jérémie Roquet <jroquet@arkanosis.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Usage: {} <all photos to resize>"
+msgstr "Utilisation: {} <toutes les photos à redimensionner>"
+
+msgid "Resizing…"
+msgstr "Redimensionnement en cours…"
+
+msgid "Resizing \"{}\"…"
+msgstr "Redimensionnement en cours de \"{}\"…"
+
+msgid "Resized photos were written to \"{}\" and will be deleted at reboot."
+msgstr "Les photos redimensionnées ont été écrites dans \"{}\" et seront supprimées lors du prochain redémarrage."
