@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-# tifoto v1.0.0
+# tifoto v1.0.1
 # (C) 2017 Jérémie Roquet <jroquet@arkanosis.net>
 # Released under the MIT license
 # https://github.com/Arkanosis/tifoto/
@@ -102,7 +102,11 @@ def resize_photos(args):
 
 if __name__ == '__main__':
 
-    gettext.install('tifoto', os.path.join(os.path.dirname(__file__), 'locale'))
+    dev_locale_path = os.path.join(os.path.dirname(__file__), 'locale')
+    if os.path.isdir(dev_locale_path):
+        gettext.install('tifoto', dev_locale_path)
+    else:
+        gettext.install('tifoto', '/usr/share/locale')
 
     if len(sys.argv) < 2:
         print(_('Usage: {} <all photos to resize>').format(sys.argv[0].split(os.sep)[-1]), file=sys.stderr)

@@ -6,6 +6,7 @@
 # https://github.com/Arkanosis/tifoto/
 
 cp tifoto /usr/bin
+cp locale/fr/LC_MESSAGES/tifoto.mo /usr/share/locale/fr/LC_MESSAGES
 
 cat > /usr/share/kservices5/ServiceMenus/tifoto.desktop <<EOF
 [Desktop Entry]
