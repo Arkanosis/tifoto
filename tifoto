@@ -82,7 +82,7 @@ def resize_photos(args):
                 directory, photo = photos.pop(0)
             progress.begin(photo)
             dest = photo
-            while os.path.exists(dest):
+            while os.path.exists(os.path.join(tifoto_dir, dest)):
                 dest = '_' + dest
             subprocess.run(['convert', '-resize', '3840x3840', '-quality', '70%', os.path.join(directory, photo), os.path.join(tifoto_dir, dest)])
             subprocess.run(['touch', '-r', os.path.join(directory, photo), os.path.join(tifoto_dir, dest)])
