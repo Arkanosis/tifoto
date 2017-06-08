@@ -1,11 +1,11 @@
 #! /usr/bin/env python3
 
-# tifoto v1.0.1
+# tifoto v1.0.2
 # (C) 2017 Jérémie Roquet <jroquet@arkanosis.net>
 # Released under the MIT license
 # https://github.com/Arkanosis/tifoto/
 
-__version__ = '1.0.0'
+__version__ = '1.0.2'
 
 import gettext
 import os
@@ -64,10 +64,13 @@ def show_message(message):
 def resize_photos(args):
     photos = []
     for arg in args:
-        for dirpath, __, filenames in os.walk(arg, followlinks=True):
-            for filename in filenames:
-                if jpeg_file.search(filename):
-                    photos.append((dirpath, filename))
+        if os.path.isdir(arg):
+            for dirpath, __, filenames in os.walk(arg, followlinks=True):
+                for filename in filenames:
+                    if jpeg_file.search(filename):
+                        photos.append((dirpath, filename))
+        elif jpeg_file.search(arg):
+            photos.append(os.path.split(arg))
 
     progress = Progress(len(photos))
     os.makedirs(tifoto_dir, exist_ok=True)
