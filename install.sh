@@ -2,7 +2,7 @@
 
 # tifoto installer
 # (C) 2017 Jérémie Roquet <jroquet@arkanosis.net>
-# Released under the MIT license
+# Released under the ISC license
 # https://github.com/Arkanosis/tifoto/
 
 cp tifoto /usr/bin
