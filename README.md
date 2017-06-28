@@ -8,6 +8,7 @@ tifoto currently does the following:
 * Re-compress using JPEG quality 70%.
 * Resize the largest dimension to 3840 pixels.
 * Store minified photos in /tmp/tifoto so that they are deleted on reboot.
+* Use all available CPU cores on the computer to process several photos at the same time.
 
 It is available in English and in French.
 
