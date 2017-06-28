@@ -1,11 +1,11 @@
 #! /usr/bin/env python3
 
-# tifoto v1.0.2
+# tifoto v1.0.3-dev
 # (C) 2017 Jérémie Roquet <jroquet@arkanosis.net>
 # Released under the ISC license
 # https://github.com/Arkanosis/tifoto/
 
-__version__ = '1.0.2'
+__version__ = '1.0.3-dev'
 
 import gettext
 import os
@@ -115,4 +115,7 @@ if __name__ == '__main__':
         print(_('Usage: {} <all photos to resize>').format(sys.argv[0].split(os.sep)[-1]), file=sys.stderr)
         sys.exit(1)
 
-    resize_photos(sys.argv[1:])
+    if sys.argv[1] == '--version':
+        print(__version__)
+    else:
+        resize_photos(sys.argv[1:])
