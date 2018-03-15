@@ -111,11 +111,11 @@ if __name__ == '__main__':
     else:
         gettext.install('tifoto', '/usr/share/locale')
 
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 2 or sys.argv[1] in ['-h', '--help']:
         print(_('Usage: {} <all photos to resize>').format(sys.argv[0].split(os.sep)[-1]), file=sys.stderr)
         sys.exit(1)
 
     if sys.argv[1] == '--version':
-        print(__version__)
+        print('tifoto v{}'.format(__version__))
     else:
         resize_photos(sys.argv[1:])

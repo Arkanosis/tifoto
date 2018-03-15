@@ -1,4 +1,4 @@
-# tifoto [![License](http://img.shields.io/badge/license-ISC-blue.svg)](/LICENSE)
+# tifoto [![Version](https://img.shields.io/badge/version-v1.0.3--dev-orange.svg)](https://semver.org/spec/v2.0.0.html) [![License](http://img.shields.io/badge/license-ISC-blue.svg)](/LICENSE)
 
 **tifoto** is a simple tool for photo mass-resizing for emails.
 
@@ -42,4 +42,4 @@ Please report bugs and feature requests on [GitHub issues](https://github.com/Ar
 
 ## License
 
-tifoto is copyright (C) 2017 Jérémie Roquet <jroquet@arkanosis.net> and licensed under the ISC license.
+tifoto is copyright (C) 2017-2018 Jérémie Roquet <jroquet@arkanosis.net> and licensed under the ISC license.
