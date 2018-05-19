@@ -1,13 +1,13 @@
-# tifoto [![Version](https://img.shields.io/badge/version-v1.0.3--dev-orange.svg)](https://semver.org/spec/v2.0.0.html) [![License](http://img.shields.io/badge/license-ISC-blue.svg)](/LICENSE)
+# tifoto [![Version](https://img.shields.io/badge/version-v1.1.0-orange.svg)](https://semver.org/spec/v2.0.0.html) [![License](http://img.shields.io/badge/license-ISC-blue.svg)](/LICENSE)
 
 **tifoto** is a simple tool for photo mass-resizing for emails.
 
 ## Features
 
 tifoto currently does the following:
-* Re-compress using JPEG quality 70%.
-* Resize the largest dimension to 3840 pixels.
-* Store minified photos in /tmp/tifoto so that they are deleted on reboot.
+* Re-compress photos using JPEG quality 70% and videos using Webm with VP9 for video and Opus for audio.
+* Resize the largest dimension of photos to 3840 pixels and videos to 720p.
+* Store minified photos and videos in /tmp/tifoto so that they are deleted on reboot.
 * Use all available CPU cores on the computer to process several photos at the same time.
 
 It is available in English and in French.
@@ -20,7 +20,7 @@ Run `sudo install.sh`.
 
 ## Usage
 
-Run `tifoto <all photos to resize>` in a terminal or use the “Resize photos using tifoto” action in Dolphin's context menu.
+Run `tifoto <all photos and videos to resize>` in a terminal or use the “Resize photos and videos using tifoto” action in Dolphin's context menu.
 
 ![Dolphin menu preview](https://raw.githubusercontent.com/Arkanosis/tifoto/master/screenshots/menu.png)
 
@@ -33,6 +33,7 @@ Run `tifoto <all photos to resize>` in a terminal or use the “Resize photos us
 tifoto would like to add the following features:
 * Support other graphical environments than KDE.
 * Use Guetzli instead of libjpeg / libjpeg-turbo.
+* Use AV1 instead of VP9.
 
 ## Contributing and reporting bugs
 

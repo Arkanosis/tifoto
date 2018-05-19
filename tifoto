@@ -1,11 +1,11 @@
 #! /usr/bin/env python3
 
-# tifoto v1.0.3-dev
-# (C) 2017 Jérémie Roquet <jroquet@arkanosis.net>
+# tifoto v1.1.0
+# (C) 2017-2018 Jérémie Roquet <jroquet@arkanosis.net>
 # Released under the ISC license
 # https://github.com/Arkanosis/tifoto/
 
-__version__ = '1.0.3-dev'
+__version__ = '1.1.0'
 
 import gettext
 import os
@@ -16,7 +16,11 @@ import sys
 import threading
 
 tifoto_dir = '/tmp/tifoto'
-jpeg_file = re.compile(r'\.jpe?g$', re.IGNORECASE)
+photo_file = re.compile(r'\.jpe?g$', re.IGNORECASE)
+video_file = re.compile(r'\.(mov|mp4)$', re.IGNORECASE)
+
+photo_increment = 1
+video_increment = 1000  # a video is worth a thousand pictures
 
 class Progress:
 
@@ -39,9 +43,9 @@ class Progress:
         else:
             print('\t{}'.format(step))
 
-    def end(self):
+    def end(self, increment):
         with self.__lock:
-            self.__step += 1
+            self.__step += increment
         if os.environ.get('DISPLAY'):
             self.__update('Set', '', 'value', str(self.__step))
 
@@ -61,47 +65,68 @@ def show_message(message):
     else:
         print(message)
 
-def resize_photos(args):
+def resize_files(args):
     photos = []
+    videos = []
     for arg in args:
         if os.path.isdir(arg):
             for dirpath, __, filenames in os.walk(arg, followlinks=True):
                 for filename in filenames:
-                    if jpeg_file.search(filename):
+                    if photo_file.search(filename):
                         photos.append((dirpath, filename))
-        elif jpeg_file.search(arg):
+                    elif video_file.search(filename):
+                        videos.append((dirpath, filename))
+        elif photo_file.search(arg):
             photos.append(os.path.split(arg))
+        elif video_file.search(arg):
+            videos.append(os.path.split(arg))
 
-    progress = Progress(len(photos))
+    progress = Progress(len(photos) + 2 * video_increment * len(videos))
     os.makedirs(tifoto_dir, exist_ok=True)
 
     lock = threading.Lock()
 
-    def worker():
+    def photo_worker():
         while not progress.stopped():
             with lock:
                 if not photos:
                     break
                 directory, photo = photos.pop(0)
             progress.begin(photo)
-            dest = photo
+            dest = re.sub(photo_file, '.jpg', photo)
             while os.path.exists(os.path.join(tifoto_dir, dest)):
                 dest = '_' + dest
             subprocess.run(['convert', '-resize', '3840x3840', '-quality', '70%', os.path.join(directory, photo), os.path.join(tifoto_dir, dest)])
             subprocess.run(['touch', '-r', os.path.join(directory, photo), os.path.join(tifoto_dir, dest)])
-            progress.end()
+            progress.end(photo_increment)
 
+    # Photo resizing is mono-threaded, so process photos in parallel to use all available threads
     threads = []
     for thread in os.sched_getaffinity(0):
-        worker_thread = threading.Thread(target=worker)
+        worker_thread = threading.Thread(target=photo_worker)
         threads.append(worker_thread)
         worker_thread.start()
 
     for thread in threads:
         thread.join()
 
+    # Video conversion is already multi-threaded, so process videos sequentially
+    while not progress.stopped():
+        if not videos:
+            break
+        directory, video = videos.pop(0)
+        progress.begin(video)
+        dest = re.sub(video_file, '.webm', video)
+        while os.path.exists(os.path.join(tifoto_dir, dest)):
+            dest = '_' + dest
+        subprocess.run(['ffmpeg', '-i', os.path.join(directory, video), '-c:v', 'libvpx-vp9', '-s', 'hd720', '-pass', '1', '-b:v', '1M', '-threads', '0', '-speed', '4', '-tile-columns', '6', '-frame-parallel', '1', '-an', '-f', 'webm', '-y', '/dev/null'])
+        progress.end(video_increment)
+        subprocess.run(['ffmpeg', '-i', os.path.join(directory, video), '-c:v', 'libvpx-vp9', '-s', 'hd720', '-pass', '2', '-b:v', '1M', '-threads', '0', '-speed', '1', '-tile-columns', '6', '-frame-parallel', '1', '-auto-alt-ref', '1', '-lag-in-frames', '25', '-c:a', 'libopus', '-b:a', '64k', '-f', 'webm', os.path.join(tifoto_dir, dest)])
+        subprocess.run(['touch', '-r', os.path.join(directory, video), os.path.join(tifoto_dir, dest)])
+        progress.end(video_increment)
+
     progress.close()
-    show_message(_('Resized photos were written to "{}" and will be deleted at reboot.').format(tifoto_dir))
+    show_message(_('Resized photos and videos were written to "{}" and will be deleted at reboot.').format(tifoto_dir))
 
 if __name__ == '__main__':
 
@@ -112,10 +137,10 @@ if __name__ == '__main__':
         gettext.install('tifoto', '/usr/share/locale')
 
     if len(sys.argv) < 2 or sys.argv[1] in ['-h', '--help']:
-        print(_('Usage: {} <all photos to resize>').format(sys.argv[0].split(os.sep)[-1]), file=sys.stderr)
+        print(_('Usage: {} <all photos and videos to resize>').format(sys.argv[0].split(os.sep)[-1]), file=sys.stderr)
         sys.exit(1)
 
     if sys.argv[1] == '--version':
         print('tifoto v{}'.format(__version__))
     else:
-        resize_photos(sys.argv[1:])
+        resize_files(sys.argv[1:])
