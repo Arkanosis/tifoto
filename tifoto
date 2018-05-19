@@ -1,11 +1,11 @@
 #! /usr/bin/env python3
 
-# tifoto v1.1.0
+# tifoto v1.1.1-dev
 # (C) 2017-2018 Jérémie Roquet <jroquet@arkanosis.net>
 # Released under the ISC license
 # https://github.com/Arkanosis/tifoto/
 
-__version__ = '1.1.0'
+__version__ = '1.1.1-dev'
 
 import gettext
 import os

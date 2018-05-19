@@ -1,6 +1,6 @@
-# tifoto [![Version](https://img.shields.io/badge/version-v1.1.0-orange.svg)](https://semver.org/spec/v2.0.0.html) [![License](http://img.shields.io/badge/license-ISC-blue.svg)](/LICENSE)
+# tifoto [![Version](https://img.shields.io/badge/version-v1.1.1--dev-orange.svg)](https://semver.org/spec/v2.0.0.html) [![License](http://img.shields.io/badge/license-ISC-blue.svg)](/LICENSE)
 
-**tifoto** is a simple tool for photo mass-resizing for emails.
+**tifoto** is a simple tool for photo and video mass-resizing for emails.
 
 ## Features
 
@@ -14,7 +14,7 @@ It is available in English and in French.
 
 ## Installation
 
-tifoto currently requires Python 3, ImageMagick and both Kdialog and qdbus (both available with KDE) in graphical mode or neither of them in console mode.
+tifoto currently requires Python 3, ImageMagick for photos, ffmpeg for videos and both Kdialog and qdbus (both available with KDE) in graphical mode or neither of them in console mode.
 
 Run `sudo install.sh`.
 
