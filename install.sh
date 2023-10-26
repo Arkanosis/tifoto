@@ -1,7 +1,7 @@
 #! /bin/sh
 
 # tifoto installer
-# (C) 2017-2018 Jérémie Roquet <jroquet@arkanosis.net>
+# (C) 2017-2023 Jérémie Roquet <jroquet@arkanosis.net>
 # Released under the ISC license
 # https://github.com/Arkanosis/tifoto/
 

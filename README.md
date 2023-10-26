@@ -43,4 +43,4 @@ Please report bugs and feature requests on [GitHub issues](https://github.com/Ar
 
 ## License
 
-tifoto is copyright (C) 2017-2018 Jérémie Roquet <jroquet@arkanosis.net> and licensed under the ISC license.
+tifoto is copyright (C) 2017-2023 Jérémie Roquet <jroquet@arkanosis.net> and licensed under the ISC license.

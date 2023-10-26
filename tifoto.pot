@@ -1,5 +1,5 @@
 # tifoto v1.1.1-dev
-# (C) 2017-2018 Jérémie Roquet <jroquet@arkanosis.net>
+# (C) 2017-2023 Jérémie Roquet <jroquet@arkanosis.net>
 # Released under the ISC license
 # https://github.com/Arkanosis/tifoto/
 ##
