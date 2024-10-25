@@ -8,6 +8,7 @@
 __version__ = '1.1.2-dev'
 
 import gettext
+import json
 import os
 import os.path
 import re
@@ -122,9 +123,56 @@ def resize_files(args):
         dest = re.sub(video_file, '.webm', video)
         while os.path.exists(os.path.join(tifoto_dir, dest)):
             dest = '_' + dest
-        subprocess.run(['ffmpeg', '-i', os.path.join(directory, video), '-c:v', 'libvpx-vp9', '-s', 'hd720', '-pass', '1', '-b:v', '1M', '-threads', '0', '-speed', '4', '-tile-columns', '6', '-frame-parallel', '1', '-an', '-f', 'webm', '-y', '/dev/null'])
+        target_resolution = '1280x720'
+        try:
+            video_info = subprocess.run([
+                'ffprobe',
+                '-show_streams',
+                '-output_format', 'json',
+                os.path.join(directory, video)
+            ], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).stdout
+            for stream in json.loads(video_info)['streams']:
+                if stream['codec_type'] == 'video':
+                    if stream['height'] > stream['width']:
+                        target_resolution = '720x1280'
+        except:
+            # Assume horizontal
+            pass
+        subprocess.run([
+            'ffmpeg',
+            '-i', os.path.join(directory, video),
+            '-c:v', 'libvpx-vp9',
+            '-s', target_resolution,
+            '-pass', '1',
+            '-b:v', '1M',
+            '-threads', '0',
+            '-speed', '4',
+            '-tile-columns', '6',
+            '-frame-parallel', '1',
+            '-an',
+            '-f', 'webm',
+            '-y',
+            '/dev/null'
+        ])
         progress.end(video_increment)
-        subprocess.run(['ffmpeg', '-i', os.path.join(directory, video), '-c:v', 'libvpx-vp9', '-s', 'hd720', '-pass', '2', '-b:v', '1M', '-threads', '0', '-speed', '1', '-tile-columns', '6', '-frame-parallel', '1', '-auto-alt-ref', '1', '-lag-in-frames', '25', '-c:a', 'libopus', '-b:a', '64k', '-f', 'webm', os.path.join(tifoto_dir, dest)])
+        subprocess.run([
+            'ffmpeg',
+            '-i', os.path.join(directory, video),
+            '-c:v', 'libvpx-vp9',
+            '-s', target_resolution,
+            '-pass', '2',
+            '-b:v', '1M',
+            '-threads', '0',
+            '-speed', '1',
+            '-tile-columns', '6',
+            '-frame-parallel', '1',
+            '-auto-alt-ref', '1',
+            '-lag-in-frames', '25',
+            '-c:a', 'libopus',
+            '-b:a', '64k',
+            '-f', 'webm',
+            os.path.join(tifoto_dir, dest)
+        ])
         subprocess.run(['touch', '-r', os.path.join(directory, video), os.path.join(tifoto_dir, dest)])
         progress.end(video_increment)
 
