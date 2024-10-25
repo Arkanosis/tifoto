@@ -1,16 +1,17 @@
 #! /usr/bin/env python3
 
-# tifoto v1.1.1-dev
-# (C) 2017-2023 Jérémie Roquet <jroquet@arkanosis.net>
+# tifoto v1.1.2-dev
+# (C) 2017-2024 Jérémie Roquet <jroquet@arkanosis.net>
 # Released under the ISC license
 # https://github.com/Arkanosis/tifoto/
 
-__version__ = '1.1.1-dev'
+__version__ = '1.1.2-dev'
 
 import gettext
 import os
 import os.path
 import re
+import shutil
 import subprocess
 import sys
 import threading
@@ -18,6 +19,8 @@ import threading
 tifoto_dir = '/tmp/tifoto'
 photo_file = re.compile(r'\.jpe?g$', re.IGNORECASE)
 video_file = re.compile(r'\.(mov|mp4)$', re.IGNORECASE)
+
+graphical = os.environ.get('DISPLAY') and shutil.which('kdialog')
 
 photo_increment = 1
 video_increment = 1000  # a video is worth a thousand pictures
@@ -27,7 +30,7 @@ class Progress:
     def __init__(self, steps):
         self.__lock = threading.Lock()
         self.__step = 0
-        if os.environ.get('DISPLAY'):
+        if graphical:
             self.__dialog = subprocess.run(['kdialog', '--progressbar', _('Resizing…'), str(steps)], stdout=subprocess.PIPE).stdout.rstrip().split()
             self.__update('showCancelButton', 'true')
         else:
@@ -38,7 +41,7 @@ class Progress:
         return result.returncode == 0 and result.stdout.rstrip()
 
     def begin(self, step):
-        if os.environ.get('DISPLAY'):
+        if graphical:
             self.__update('setLabelText', _('Resizing "{}"…').format(step))
         else:
             print('\t{}'.format(step))
@@ -46,21 +49,21 @@ class Progress:
     def end(self, increment):
         with self.__lock:
             self.__step += increment
-        if os.environ.get('DISPLAY'):
+        if graphical:
             self.__update('Set', '', 'value', str(self.__step))
 
     def stopped(self):
-        if os.environ.get('DISPLAY'):
+        if graphical:
             result = self.__update('wasCancelled')
             return not result or result == b'true'
         return False
 
     def close(self):
-        if os.environ.get('DISPLAY'):
+        if graphical:
             self.__update('close')
 
 def show_message(message):
-    if os.environ.get('DISPLAY'):
+    if graphical:
         subprocess.run(['kdialog', '--msgbox', message])
     else:
         print(message)

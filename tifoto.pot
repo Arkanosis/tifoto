@@ -1,11 +1,11 @@
-# tifoto v1.1.1-dev
-# (C) 2017-2023 Jérémie Roquet <jroquet@arkanosis.net>
+# tifoto v1.1.2-dev
+# (C) 2017-2024 Jérémie Roquet <jroquet@arkanosis.net>
 # Released under the ISC license
 # https://github.com/Arkanosis/tifoto/
 ##
 msgid ""
 msgstr ""
-"Project-Id-Version: 1.1.1-dev\n"
+"Project-Id-Version: 1.1.2-dev\n"
 "POT-Creation-Date: 2017-06-08 02:46+0200\n"
 "PO-Revision-Date: 2018-05-19 02:46+0200\n"
 "Last-Translator: Jérémie Roquet <jroquet@arkanosis.net>\n"
