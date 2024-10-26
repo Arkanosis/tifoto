@@ -128,7 +128,7 @@ def resize_files(args):
             video_info = subprocess.run([
                 'ffprobe',
                 '-show_streams',
-                '-output_format', 'json',
+                '-of', 'json',
                 os.path.join(directory, video)
             ], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).stdout
             for stream in json.loads(video_info)['streams']:
